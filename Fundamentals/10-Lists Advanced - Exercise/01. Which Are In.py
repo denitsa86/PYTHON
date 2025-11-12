@@ -9,7 +9,7 @@ for i in range(len(criteria)):
         if criteria[i] in word:
             substrings.append(criteria[i])
 
-#[res.append(val) for val in a if val not in res]
+#avoid duplicates with list compr  example: [res.append(val) for val in a if val not in res]
 result = []
 [result.append(val) for val in substrings if val not in result]
 print(result)
