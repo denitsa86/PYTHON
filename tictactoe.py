@@ -7,24 +7,21 @@ class TicTacToe:
         self.playerO = "O"
         self.player_turn = 0
 
-
-# create board
+    # create board
     def create_board(self):  # 3, 3
         game_board = []
         for _ in range(self.rows):
             game_board.append(['_'] * self.cols)
         return game_board
 
-
-# Print the board
+    # Print the board
     def print_board(self):
         print("  012")
         # print rows
         for i in range(self.rows):
             print(f"{i} {''.join(self.board[i])}")
 
-
-# check for win
+    # check for win
     def check_winner(self):
         # Rows and columns
         board = self.board
@@ -40,7 +37,6 @@ class TicTacToe:
             return board[0][2]
         return None
 
-
     def validate_input(self, prompt, min_value=0, max_value=2):
         while True:
             try:
@@ -52,21 +48,22 @@ class TicTacToe:
             except ValueError:
                 print("Invalid input. Please enter a number.")
 
+    def get_current_player(self):
+        return self.playerX if self.player_turn % 2 == 0 else self.playerO
+
+    def is_position_free(self, row, col):
+        return self.board[row][col] == '_'
 
     def play_game(self):
         for turn in range(9):
             self.print_board()
-            # player = self.playerX if self.player_turn % 2 == 0 else self.playerO
-            if self.player_turn % 2 == 0:
-                player = self.playerX
-            else:
-                player = self.playerO
+            player = self.get_current_player()
             # player is selecting position on the board
             print(f"Hello, {player}! Please choose your move by selecting your position:")
             player_row = self.validate_input("Choose a row (from 0 to 2): ")
             player_col = self.validate_input("Choose a column (from 0 to 2): ")
 
-            if self.board[player_row][player_col] != '_':
+            if not self.is_position_free(player_row, player_col):
                 print(f"This position is already occupied. Choose another position!")
                 continue
             # player`s move is documented on the board
@@ -84,6 +81,7 @@ class TicTacToe:
 
         self.print_board()
         print("Nobody wins!")
+
 
 if __name__ == "__main__":
     TicTacToe().play_game()
