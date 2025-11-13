@@ -1,4 +1,4 @@
-#You will receive the parts' prices (without tax) until you receive what type of customer this is -
+# You will receive the parts' prices (without tax) until you receive what type of customer this is -
 # special or regular.
 # The taxes are 20% of each part's price you receive.
 # If the customer is special, he has a 10% discount on the total price with taxes.
@@ -18,7 +18,7 @@ while command != "special" and command != "regular":
 if total_price <= 0:
     print("Invalid order!")
 else:
-    taxes = total_price * 20/100
+    taxes = total_price * 20 / 100
     total_price_with_taxes = total_price + taxes
     if command == "special":
         total_price_with_taxes = total_price_with_taxes * 0.90
@@ -27,4 +27,3 @@ else:
     print(f"Taxes: {taxes:.2f}$")
     print("-----------")
     print(f"Total price: {total_price_with_taxes:.2f}$")
-

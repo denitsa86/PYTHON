@@ -23,10 +23,9 @@ taken_seats = sum(current_state)
 
 if people <= 0 and taken_seats < max_seats:
     print("The lift has empty spots!")
-    print(" ".join(map(str,current_state)))
+    print(" ".join(map(str, current_state)))
 elif people > 0 and taken_seats <= max_seats:
     print(f"There isn't enough space! {people} people in a queue!")
-    print(" ".join(map(str,current_state)))
+    print(" ".join(map(str, current_state)))
 elif people <= 0 and taken_seats == max_seats:
-    print(" ".join(map(str,current_state)))
-
+    print(" ".join(map(str, current_state)))

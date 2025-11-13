@@ -24,4 +24,3 @@ while command != "End of battle":
 
 if command == "End of battle":
     print(f"Won battles: {wins}. Energy left: {energy}")
-
