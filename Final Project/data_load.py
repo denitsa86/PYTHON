@@ -19,39 +19,41 @@ def load_account_managers(filename="account_managers.xlsx"):
 
 def load_open_invoices(filename="open invoices.xlsx"):
     df = pd.read_excel(filename)
-    return [
-        OpenInvoice(
-            row["Document Number"],
-            row["Payer Number"],
-            row["Customer Name"],
-            row["Document Date"],
-            row["Net due date"],
-            row["Amount in doc. curr."],
-            row["Document currency"],
-            row["Status"],
-            row["Company Code"],
-            row["Profit Center"],
+    invoices = []
+    for _, row in df.iterrows():
+        invoice = OpenInvoice(
+            status = row["Status"],
+            customer_id=row["Payer number"],
+            customer_name=row["Customer Name"],
+            co_code = row["Company Code"],
+            invoice_date = row["Document Date"],
+            due_date = row["Net due date"],
+            document_currency=row["Document currency"],
+            amount = row["Amount in doc. curr."],
+            invoice_id=row["Document Number"],
+            profit_center = row["Profit Center"]
         )
-        for _, row in df.iterrows()
-    ]
+        invoices.append(invoice)
+    return invoices
+
 def load_closed_invoices(filename="closed invoices.xlsx"):
     df = pd.read_excel(filename)
-    return [
-        ClosedInvoice(
-            row["Document Number"],
-            row["Payer Number"],
-            row["Customer Name"],
-            row["Document Date"],
-            row["Net due date"],
-            row["Amount in doc. curr."],
-            row["Document currency"],
-            row["Status"],
-            row["Company Code"],
-            row["Profit Center"],
-            row["Payment date"],
+    invoices = []
+    for _, row in df.iterrows():
+        invoice = ClosedInvoice(
+            status=row["Status"],
+            customer_id=row["Payer number"],
+            customer_name=row["Customer Name"],
+            co_code=row["Company Code"],
+            invoice_date=row["Document Date"],
+            due_date=row["Net due date"],
+            document_currency=row["Document currency"],
+            amount=row["Amount in doc. curr."],
+            invoice_id=row["Document Number"],
+            profit_center=row["Profit Center"],
+            payment_date=row["Payment date"]
         )
-        for _, row in df.iterrows()
-    ]
+        invoices.append(invoice)
 
 def convert_to_usd(input_file="open invoices.xlsx", output_file="open invoices converted.xlsx"):
     # Exchange rates
@@ -61,7 +63,7 @@ def convert_to_usd(input_file="open invoices.xlsx", output_file="open invoices c
     df = pd.read_excel(input_file)
 
     # Convert amounts
-    df["Amount in USD"] = df["AmountDocCurrency"] * df["DocCurrency"].map(rates)
+    df["Amount in USD"] = df["Amount in doc. curr."] * df["Document currency"].map(rates)
 
     # Save the updated file
     df.to_excel(output_file, index=False)

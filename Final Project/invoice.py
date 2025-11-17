@@ -19,6 +19,10 @@ class OpenInvoice:
         self.days_late = self.calculate_days_late()
         # self.last_day_of_the_current_month = self.find_the_last_day_current_month()
         # self.bucket = self.assign_to_overdue_bucket()
+    def calculate_days_late(self):
+        today = datetime.today().date()
+        return (today - self.due_date).days
+
 
 class ClosedInvoice:
     def __init__(self, status, invoice_id, customer_id, customer_name, invoice_date, due_date, amount, document_currency,
