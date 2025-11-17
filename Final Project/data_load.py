@@ -4,6 +4,7 @@ from collector import Collector
 from account_manager import AccountManager
 from invoice import OpenInvoice
 from invoice import ClosedInvoice
+from datetime import datetime
 
 def load_customers(filename="customers.xlsx"):
     df = pd.read_excel(filename)
@@ -70,3 +71,18 @@ def convert_to_usd(input_file="open invoices.xlsx", output_file="open invoices c
     print(f"Saved converted invoices to {output_file}")
 
     #THINK ABOUT OTHER CURRENCIES!!!
+
+def calculate_days_late(input_file="open invoices.xlsx", output_file="open invoices converted2.xlsx"):
+    # Load your invoices
+    df = pd.read_excel(input_file)
+
+    # Ensure due_date is a proper date
+    df["Net due date"] = pd.to_datetime(df["Net due date"]).dt.date
+
+    # Calculate days late
+    today = datetime.today().date()
+    df["Days Late"] = (today - df["Net due date"]).apply(lambda x: x.days)
+
+    # Save back to Excel
+    df.to_excel(output_file, index=False)
+    print("Saved with days_late column")
