@@ -12,7 +12,23 @@ def load_customers(filename="customers.xlsx"):
 
 def load_collectors(filename="collectors.xlsx"):
     df = pd.read_excel(filename)
-    return [Collector(row["Collector Full Name"], row["Manager"]) for _, row in df.iterrows()]
+    collectors = {}
+    for _, row in df.iterrows():
+        coll_name = row["Collector Full Name"]
+        manager = row["Manager"]
+        cust_id = row["Payer number"]
+
+        if coll_name not in collectors:
+            collectors[coll_name] = Collector(coll_name, manager)
+        collectors[coll_name].assign_customer(cust_id)
+
+    # Build lookup: customer_id → (collector_name, manager)
+    customer_to_collector = {}
+    for collector in collectors.values():
+        for cust in collector.customers:
+            customer_to_collector[cust] = (collector.collector_name, collector.collector_manager)
+
+    return customer_to_collector
 
 def load_account_managers(filename="account_managers.xlsx"):
     df = pd.read_excel(filename)

@@ -1,36 +1,58 @@
-from openpyxl import Workbook
-from collections import defaultdict
+import pandas as pd
 
+def sum_current_due_invoices(open_invoices):
+    if not open_invoices:
+        return 0
+    last_day = open_invoices[0].last_day_of_the_current_month
+    total = sum(inv.amount_in_usd for inv in open_invoices if inv.due_date < last_day)
+    return total
 
-def build_overdue_report_openpyxl(invoices, output_file="overdue_report.xlsx"):
-    # Step 1: aggregate data
-    report_data = defaultdict(lambda: defaultdict(float))
+def build_reports(invoices, customer_to_collector, output_file="overdue_report.xlsx"):
+    # Common filter
+    last_day = invoices[0].last_day_of_the_current_month
+    filtered_invoices = [inv for inv in invoices if inv.due_date < last_day]
 
-    for inv in invoices:
-        key = (inv.customer_name, inv.customer_id)  # you can also add collector/manager here
-        report_data[key][inv.bucket] += inv.amount  # assumes already converted to USD
+    # --- First report: by bucket ---
+    df_bucket = pd.DataFrame([{
+        "customer_name": inv.customer_name,
+        "customer_id": inv.customer_id,
+        "bucket": inv.bucket,
+        "amount_usd": inv.amount_in_usd,
+        "collector_name": customer_to_collector.get(inv.customer_id, ("Unknown", ""))[0],
+        "collector_manager": customer_to_collector.get(inv.customer_id, ("Unknown", ""))[1]
+    } for inv in filtered_invoices])
 
-    # Step 2: create workbook
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "MonthEndPrep"
+    report_bucket = df_bucket.pivot_table(
+        index=["customer_name", "customer_id", "collector_name", "collector_manager"],
+        columns="bucket",
+        values="amount_usd",
+        aggfunc="sum",
+        fill_value=0
+    )
+    report_bucket["TotalUSD"] = report_bucket.sum(axis=1)
+    report_bucket = report_bucket.reset_index()
 
-    # Step 3: write headers
-    headers = ["Customer Name", "Customer ID", "Not Due Yet", "1-3", "3-6", "7-14",
-               "15-30", "31-60", "61-90", "91-180", "180+", "TotalUSD"]
-    ws.append(headers)
+    # --- Second report: by status ---
+    df_status = pd.DataFrame([{
+        "customer_name": inv.customer_name,
+        "customer_id": inv.customer_id,
+        "status": inv.status,
+        "amount_usd": inv.amount_in_usd
+    } for inv in filtered_invoices])
 
-    # Step 4: write rows
-    for (cust_name, cust_id), buckets in report_data.items():
-        row = [cust_name, cust_id]
-        total = 0
-        for bucket in headers[2:-1]:  # skip first two and last column
-            val = buckets.get(bucket, 0)
-            row.append(val)
-            total += val
-        row.append(total)
-        ws.append(row)
+    report_status = df_status.pivot_table(
+        index=["customer_name", "customer_id"],
+        columns="status",
+        values="amount_usd",
+        aggfunc="sum",
+        fill_value=0
+    )
+    report_status["TotalUSD"] = report_status.sum(axis=1)
+    report_status = report_status.reset_index()
 
-    # Step 5: save workbook
-    wb.save(output_file)
-    print(f"Report saved to {output_file}")
+    # --- Write both to the same Excel file ---
+    with pd.ExcelWriter(output_file, engine="openpyxl") as writer:
+        report_bucket.to_excel(writer, sheet_name="AgingReport", index=False)
+        report_status.to_excel(writer, sheet_name="MonthEndPrepStatus", index=False)
+
+    print(f"Reports saved to {output_file} with two sheets.")

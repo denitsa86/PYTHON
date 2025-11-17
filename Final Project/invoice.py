@@ -1,11 +1,12 @@
-from datetime import datetime
+from datetime import datetime, date
 import pandas as pd
 import calendar
 
 
 class OpenInvoice:
-    def __init__(self,status, invoice_id, customer_id, customer_name, invoice_date, due_date, amount, document_currency,
-                  co_code, profit_center):
+    def __init__(self, status, invoice_id, customer_id, customer_name, invoice_date, due_date, amount,
+                 document_currency,
+                 co_code, profit_center):
         self.invoice_id = invoice_id
         self.customer_id = customer_id
         self.customer_name = customer_name
@@ -19,6 +20,7 @@ class OpenInvoice:
 
         self.days_late = self.calculate_days_late()
         self.bucket = self.assign_to_overdue_bucket()
+        self.amount_in_usd = self.convert_to_usd()
         self.last_day_of_the_current_month = self.find_the_last_day_current_month()
 
     def calculate_days_late(self):
@@ -47,17 +49,19 @@ class OpenInvoice:
 
     def find_the_last_day_current_month(self):
         today = datetime.today()
+        last_day = calendar.monthrange(today.year, today.month)[1]  # last day number
+        return date(today.year, today.month, last_day)  # full date object
 
-        # monthrange() to gets the date range
-        # year = 2025, month = 11
-        result = calendar.monthrange(today.year, today.month)
-        day = result[1] - 1  # last day is not considered for the curr.month
-        return day
+    def convert_to_usd(self):
+        rates = {"USD": 1.00, "EUR": 1.16, "GBP": 1.32, "TRY": 0.024, "PLN": 0.27, "DKK": 0.16}
+        rate = rates.get(self.currency)  # , 1.0  -default to 1.0 if currency not found
+        return round(self.amount * rate, 2)
 
 
 class ClosedInvoice:
-    def __init__(self, status, invoice_id, customer_id, customer_name, invoice_date, due_date, amount, document_currency,
-                  co_code, profit_center, payment_date):
+    def __init__(self, status, invoice_id, customer_id, customer_name, invoice_date, due_date, amount,
+                 document_currency,
+                 co_code, profit_center, payment_date):
         self.invoice_id = invoice_id
         self.customer_id = customer_id
         self.customer_name = customer_name
@@ -70,17 +74,15 @@ class ClosedInvoice:
         self.invoice_date = invoice_date
         self.payment_date = payment_date
         self.days_late = self.calculate_days_late()
-        # self.last_day_of_the_current_month = self.find_the_last_day_current_month()
-        # self.bucket = self.assign_to_overdue_bucket()
+        self.last_day_of_the_current_month = self.find_the_last_day_current_month()
+        self.bucket = self.assign_to_overdue_bucket()
 
-    # def find_the_last_day_current_month(self):
-    #     today = datetime.today()
-    #
-    #     # monthrange() to gets the date range
-    #     # year = 2025, month = 11
-    #     result = calendar.monthrange(today.year, today.month)
-    #     day = result[1] - 1  # last day is not considered for the curr.month
-    #     return day
+    def find_the_last_day_current_month(self):
+        today = datetime.today()
+
+        result = calendar.monthrange(today.year, today.month)
+        day = result[1] - 1  # last day is not considered for the curr.month
+        return day
 
     def calculate_days_late(self):
         today = datetime.today().date()
@@ -105,3 +107,4 @@ class ClosedInvoice:
             return "91-180"
         else:
             return "180+"
+

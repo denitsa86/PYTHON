@@ -4,5 +4,5 @@ class Collector:
         self.collector_manager = collector_manager
         self.customers = []
 
-    def assign_customer(self, customer):
-        self.customers.append(customer)
+    def assign_customer(self, customer_id):
+        self.customers.append(customer_id)
