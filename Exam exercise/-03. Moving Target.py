@@ -5,9 +5,9 @@ while command[0] != "End":  # 52 74 23 44 96 110
     index = int(command[1])
     if command[0] == "Shoot":
         power = int(command[2])
-        if 0 <= index <= len(targets) - 1:
+        if 0 <= index <= len(targets):
             targets[index] -= power
-            if targets[index] < 0:
+            if targets[index] <= 0: #!!!
                 targets.pop(index)
     # •	"Add {index} {value}"
     # o	Insert a target with the received value at the received index if it exists.
