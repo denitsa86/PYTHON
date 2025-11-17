@@ -3,14 +3,17 @@ import pandas as pd
 import calendar
 
 class Invoice:
-    def __init__(self, invoice_id, customer_id, collector, due_date, amount, document_currency, status):
+    def __init__(self, invoice_id, customer_id,customer_name, invoice_date, due_date, amount, document_currency, status, co_code, profit_center):
         self.invoice_id = invoice_id
         self.customer_id = customer_id
-        self.collector = collector
+        self.customer_name = customer_name
         self.due_date = pd.to_datetime(due_date).date()
         self.amount = amount
         self.currency = document_currency
         self.status = status
+        self.co_code = co_code
+        self.profit_center = profit_center
+        self.invoice_date = invoice_date
         self.days_late = self.calculate_days_late()
         self.last_day_of_the_current_month = self.find_the_last_day_current_month()
         self.bucket = self.assign_to_overdue_bucket()
