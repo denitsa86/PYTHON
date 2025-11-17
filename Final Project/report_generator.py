@@ -1,4 +1,6 @@
 import pandas as pd
+from collections import defaultdict
+
 
 def sum_current_due_invoices(open_invoices):
     if not open_invoices:
@@ -6,6 +8,7 @@ def sum_current_due_invoices(open_invoices):
     last_day = open_invoices[0].last_day_of_the_current_month
     total = sum(inv.amount_in_usd for inv in open_invoices if inv.due_date < last_day)
     return total
+
 
 def build_reports(invoices, customer_to_collector, output_file="overdue_report.xlsx"):
     # Common filter
@@ -56,3 +59,21 @@ def build_reports(invoices, customer_to_collector, output_file="overdue_report.x
         report_status.to_excel(writer, sheet_name="MonthEndPrepStatus", index=False)
 
     print(f"Reports saved to {output_file} with two sheets.")
+
+
+def average_days_late_per_customer(closed_invoices):
+    # dictionary to hold totals and counts
+    customer_stats = defaultdict(lambda: {"total_days": 0, "count": 0})
+
+    for inv in closed_invoices:
+        customer = inv.customer_id
+        customer_stats[customer]["total_days"] += inv.days_late
+        customer_stats[customer]["count"] += 1
+
+    # compute averages
+    adl_per_customer = {
+        cust: stats["total_days"] / stats["count"]
+        for cust, stats in customer_stats.items()
+    }
+
+    return adl_per_customer

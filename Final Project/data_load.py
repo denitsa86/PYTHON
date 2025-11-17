@@ -58,8 +58,8 @@ def load_closed_invoices(filename="closed invoices.xlsx"):
     invoices = []
     for _, row in df.iterrows():
         invoice = ClosedInvoice(
-            status=row["Status"],
-            customer_id=row["Payer number"],
+            status = row["Status"],
+            customer_id=row["Payer Number"],
             customer_name=row["Customer Name"],
             co_code=row["Company Code"],
             invoice_date=row["Document Date"],
@@ -71,6 +71,7 @@ def load_closed_invoices(filename="closed invoices.xlsx"):
             payment_date=row["Payment date"]
         )
         invoices.append(invoice)
+    return invoices
 
 def convert_to_usd(input_file="open invoices.xlsx", output_file="open invoices converted.xlsx"):
     # Exchange rates
