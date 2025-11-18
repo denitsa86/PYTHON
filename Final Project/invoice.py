@@ -21,7 +21,8 @@ class OpenInvoice:
         self.days_late = self.calculate_days_late()
         self.bucket = self.assign_to_overdue_bucket()
         self.amount_in_usd = self.convert_to_usd()
-        self.last_day_of_the_current_month = self.find_the_last_day_current_month()
+        #self.last_day_of_the_current_month = self.find_the_last_day_current_month()
+        self.outstanding_amount_at_month_end = self.outstanding_on_month_end
 
     def calculate_days_late(self):
         today = datetime.today().date()
@@ -47,10 +48,19 @@ class OpenInvoice:
         else:
             return "180+"
 
-    def find_the_last_day_current_month(self):
-        today = datetime.today()
-        last_day = calendar.monthrange(today.year, today.month)[1]  # last day number
-        return date(today.year, today.month, last_day)  # full date object
+    # def find_the_last_day_current_month(self):
+    #     today = datetime.today()
+    #     last_day = calendar.monthrange(today.year, today.month)[1]  # last day number
+    #     return date(today.year, today.month, last_day - 1)  # full date object
+
+    def outstanding_on_month_end(self, expected_payment_date):
+        """
+        Returns outstanding amount on D (day before last day of month).
+        """
+        if self.last_day_of_the_current_month < expected_payment_date:
+            return self.amount
+        else:
+            return 0
 
     def convert_to_usd(self):
         rates = {"USD": 1.00, "EUR": 1.16, "GBP": 1.32, "TRY": 0.024, "PLN": 0.27, "DKK": 0.16}
@@ -79,9 +89,9 @@ class ClosedInvoice:
 
     def find_the_last_day_current_month(self):
         today = datetime.today()
-        result = calendar.monthrange(today.year, today.month)
-        day = result[1] - 1  # last day is not considered for the curr.month
-        return day
+        last_day = calendar.monthrange(today.year, today.month)[1]  # last day number
+        # D = day before the last day
+        return date(today.year, today.month, last_day - 1)
 
     def calculate_days_late(self):
         return (pd.to_datetime(self.payment_date).date() - self.due_date).days
