@@ -1,6 +1,7 @@
 from datetime import datetime, date
 import pandas as pd
 import calendar
+from payment_behavior_alaysis import find_the_last_day_current_month
 
 
 class OpenInvoice:
@@ -21,7 +22,7 @@ class OpenInvoice:
         self.days_late = self.calculate_days_late()
         self.bucket = self.assign_to_overdue_bucket()
         self.amount_in_usd = self.convert_to_usd()
-        #self.last_day_of_the_current_month = self.find_the_last_day_current_month()
+        self.last_day_of_the_current_month = find_the_last_day_current_month()
         self.outstanding_amount_at_month_end = self.outstanding_on_month_end
 
     def calculate_days_late(self):
@@ -48,11 +49,6 @@ class OpenInvoice:
         else:
             return "180+"
 
-    # def find_the_last_day_current_month(self):
-    #     today = datetime.today()
-    #     last_day = calendar.monthrange(today.year, today.month)[1]  # last day number
-    #     return date(today.year, today.month, last_day - 1)  # full date object
-
     def outstanding_on_month_end(self, expected_payment_date):
         """
         Returns outstanding amount on D (day before last day of month).
@@ -62,6 +58,7 @@ class OpenInvoice:
         else:
             return 0
 
+    # I have this also in data_load - to be fixed!!!
     def convert_to_usd(self):
         rates = {"USD": 1.00, "EUR": 1.16, "GBP": 1.32, "TRY": 0.024, "PLN": 0.27, "DKK": 0.16}
         rate = rates.get(self.currency)  # , 1.0  -default to 1.0 if currency not found
@@ -69,7 +66,7 @@ class OpenInvoice:
 
 
 class ClosedInvoice:
-    def __init__(self,status, invoice_id, customer_id, customer_name, invoice_date, due_date, amount,
+    def __init__(self, status, invoice_id, customer_id, customer_name, invoice_date, due_date, amount,
                  document_currency,
                  co_code, profit_center, payment_date):
         self.status = status
@@ -84,18 +81,18 @@ class ClosedInvoice:
         self.invoice_date = invoice_date
         self.payment_date = payment_date
         self.days_late = self.calculate_days_late()
-        self.last_day_of_the_current_month = self.find_the_last_day_current_month()
+        self.last_day_of_the_current_month = find_the_last_day_current_month()
         self.bucket = self.assign_to_overdue_bucket()
-
-    def find_the_last_day_current_month(self):
-        today = datetime.today()
-        last_day = calendar.monthrange(today.year, today.month)[1]  # last day number
-        # D = day before the last day
-        return date(today.year, today.month, last_day - 1)
+        self.amount_in_usd = self.convert_to_usd()
 
     def calculate_days_late(self):
         return (pd.to_datetime(self.payment_date).date() - self.due_date).days
 
+    # To be fixed - repeated code!!!
+    def convert_to_usd(self):
+        rates = {"USD": 1.00, "EUR": 1.16, "GBP": 1.32, "TRY": 0.024, "PLN": 0.27, "DKK": 0.16}
+        rate = rates.get(self.currency)  # , 1.0  -default to 1.0 if currency not found
+        return round(self.amount * rate, 2)
 
     def assign_to_overdue_bucket(self):
         if self.days_late <= 0:
@@ -117,3 +114,4 @@ class ClosedInvoice:
         else:
             return "180+"
 
+#Classes have the same methods - can I extract them in invoice_functions and just call them

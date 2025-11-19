@@ -4,16 +4,14 @@ from datetime import timedelta, date, datetime
 import calendar
 
 
-# closed_invoices = load_closed_invoices("closed invoices.xlsx")
-# open_invoices = load_open_invoices("open invoices.xlsx")
-
-
+# find the day before the last day of the current month! This is considered as last day of the month.
 def find_the_last_day_current_month():
     today = datetime.today()
     last_day = calendar.monthrange(today.year, today.month)[1]  # last day number
     return date(today.year, today.month, last_day - 1)  # full date object
 
 
+# analyze days late in closed invoices and find average
 def average_days_late_per_customer(closed_invoices):
     # dictionary to hold totals and counts
     customer_stats = defaultdict(lambda: {"total_days": 0, "count": 0})
@@ -31,12 +29,7 @@ def average_days_late_per_customer(closed_invoices):
     return adl_per_customer
 
 
-# adl_by_customer = average_days_late_per_customer(closed_invoices)
-
-# for customer, adl in adl_by_customer.items():
-#     print(f"Customer {customer}: ADL = {adl:.2f} days")
-
-
+# prognosed payment date based on ADL
 def calculate_expected_date_open_invoices(open_invoices, adl_by_customer):
     expected_dates = []
     last_day = find_the_last_day_current_month()
@@ -53,20 +46,12 @@ def calculate_expected_date_open_invoices(open_invoices, adl_by_customer):
     filtered_invoices = [inv for inv in open_invoices if
                          inv.due_date <= last_day]  # taking into consideration only onv for current month
 
-    # with open("filtered_debug.txt", "w") as f:
-    #     print(len(filtered_invoices))
     for inv in filtered_invoices:
         customer = inv.customer_id
         due_date = inv.due_date
         adl = adl_by_customer.get(customer, 0)
         expected_date = due_date + timedelta(days=adl)
 
-        # # f.write(
-        #     f"Invoice {inv.invoice_id} | "
-        #     f"Due: {due_date}  | "
-        #     f"ADL: {adl}  | "
-        #     f"Exp: {expected_date}\n"
-        # )
         expected_dates.append({
             "invoice_id": inv.invoice_id,
             "customer_id": customer,
@@ -80,6 +65,7 @@ def calculate_expected_date_open_invoices(open_invoices, adl_by_customer):
     return expected_dates
 
 
+# calculate prognosed outstanding amount at month end
 def calculate_outstanding_at_month_end(expected_dates, customers):
     last_day = find_the_last_day_current_month()
 

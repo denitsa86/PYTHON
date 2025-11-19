@@ -6,10 +6,14 @@ from invoice import OpenInvoice
 from invoice import ClosedInvoice
 from datetime import datetime
 
+
+# read customers
 def load_customers(filename="customers.xlsx"):
     df = pd.read_excel(filename)
     return [Customer(row["Payer number"], row["Customer Name"]) for _, row in df.iterrows()]
 
+
+# read collectors/assign customer to collector
 def load_collectors(filename="collectors.xlsx"):
     df = pd.read_excel(filename)
     collectors = {}
@@ -30,35 +34,42 @@ def load_collectors(filename="collectors.xlsx"):
 
     return customer_to_collector
 
+
+# red account managers
 def load_account_managers(filename="account_managers.xlsx"):
     df = pd.read_excel(filename)
-    return [AccountManager(row["Account Manager"], row["Business segment"], row["Managed Payer"]) for _, row in df.iterrows()]
+    return [AccountManager(row["Account Manager"], row["Business segment"], row["Managed Payer"]) for _, row in
+            df.iterrows()]
 
+
+# read open invoices
 def load_open_invoices(filename="open invoices.xlsx"):
     df = pd.read_excel(filename)
     invoices = []
     for _, row in df.iterrows():
         invoice = OpenInvoice(
-            status = row["Status"],
+            status=row["Status"],
             customer_id=row["Payer number"],
             customer_name=row["Customer Name"],
-            co_code = row["Company Code"],
-            invoice_date = row["Document Date"],
-            due_date = row["Net due date"],
+            co_code=row["Company Code"],
+            invoice_date=row["Document Date"],
+            due_date=row["Net due date"],
             document_currency=row["Document currency"],
-            amount = row["Amount in doc. curr."],
+            amount=row["Amount in doc. curr."],
             invoice_id=row["Document Number"],
-            profit_center = row["Profit Center"]
+            profit_center=row["Profit Center"]
         )
         invoices.append(invoice)
     return invoices
 
+
+# read closed invoices
 def load_closed_invoices(filename="closed invoices.xlsx"):
     df = pd.read_excel(filename)
     invoices = []
     for _, row in df.iterrows():
         invoice = ClosedInvoice(
-            status = row["Status"],
+            status=row["Status"],
             customer_id=row["Payer Number"],
             customer_name=row["Customer Name"],
             co_code=row["Company Code"],
@@ -73,9 +84,11 @@ def load_closed_invoices(filename="closed invoices.xlsx"):
         invoices.append(invoice)
     return invoices
 
+
+# convert to USD as reporting should be in USD
 def convert_to_usd(input_file="open invoices.xlsx", output_file="open invoices converted.xlsx"):
     # Exchange rates
-    rates = {"USD": 1.00, "EUR": 1.16, "GBP": 1.32, "TRY": 0.024, "PLN":0.27, "DKK": 0.16}
+    rates = {"USD": 1.00, "EUR": 1.16, "GBP": 1.32, "TRY": 0.024, "PLN": 0.27, "DKK": 0.16}
 
     # Load the file
     df = pd.read_excel(input_file)
@@ -87,8 +100,10 @@ def convert_to_usd(input_file="open invoices.xlsx", output_file="open invoices c
     df.to_excel(output_file, index=False)
     print(f"Saved converted invoices to {output_file}")
 
-    #THINK ABOUT OTHER CURRENCIES!!!
+    # THINK ABOUT OTHER CURRENCIES!!!
 
+
+# how many days is the invoice overdue as of today
 def calculate_days_late(input_file="open invoices.xlsx", output_file="open invoices converted2.xlsx"):
     # Load your invoices
     df = pd.read_excel(input_file)

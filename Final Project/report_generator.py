@@ -1,22 +1,17 @@
 import pandas as pd
 from openpyxl import load_workbook
 from payment_behavior_alaysis import find_the_last_day_current_month, calculate_outstanding_at_month_end
+from performance_review import calculate_overall_performance
+from invoice_functions import sum_current_due_invoices
 
 
-def sum_current_due_invoices(open_invoices):
-    if not open_invoices:
-        return 0
-    last_day = find_the_last_day_current_month()
-    total = sum(inv.amount_in_usd for inv in open_invoices if inv.due_date < last_day)
-    return total
-
-
-def build_reports(invoices, customers, customer_to_collector, expected_dates, output_file="overdue_report.xlsx"):
+def build_reports(invoices, customers, customer_to_collector, expected_dates, open_invoices,
+                  closed_invoices, output_file="overdue_report.xlsx"):
     # Common filter
     last_day = find_the_last_day_current_month()
     filtered_invoices = [inv for inv in invoices if inv.due_date < last_day]
 
-    # --- First report: by bucket ---
+    # --- First report: by overdue bucket ---
     df_bucket = pd.DataFrame([{
         "customer_name": inv.customer_name,
         "customer_id": inv.customer_id,
@@ -76,11 +71,17 @@ def build_reports(invoices, customers, customer_to_collector, expected_dates, ou
         ["customer_name", "customer_id", "collector_name", "collector_manager"], as_index=False
     )["ExpectedOverdueUSD"].sum()
 
-    # --- Write all to the same Excel file ---
+    # --- 4th report overall performance ---
+
+    performance_result, clarification = calculate_overall_performance(open_invoices, closed_invoices)
+    df_performance = pd.DataFrame([performance_result])
+
+    # --- Write all in the same Excel file ---
     with pd.ExcelWriter(output_file, engine="openpyxl") as writer:
         report_bucket.to_excel(writer, sheet_name="AgingReport", index=False)
         report_status.to_excel(writer, sheet_name="MonthEndPrepStatus", index=False)
         report_expected.to_excel(writer, sheet_name="ExpectedOverdueOnMonthEnd", index=False)
+        df_performance.to_excel(writer, sheet_name="PerformanceSummary", index=False)
 
     # --- Append custom text to the third sheet ---
     wb = load_workbook(output_file)
@@ -88,6 +89,12 @@ def build_reports(invoices, customers, customer_to_collector, expected_dates, ou
     last_row = ws.max_row + 2  # Leave a blank row
     ws.cell(row=last_row,
             column=1).value = "PLEASE FOCUS ON THESE CUSTOMERS. THERE IS A LATE PAYMENT EXPECTED THIS MONTH!"
+    # --- Append clarifications to the fourth sheet ---
+    ws_perf = wb["PerformanceSummary"]
+    last_row_perf = ws_perf.max_row + 2
+    ws_perf.cell(row=last_row_perf, column=1).value = "Clarifications:"
+    for i, line in enumerate(clarification, start=1):
+        ws_perf.cell(row=last_row_perf + i, column=1).value = line
     wb.save(output_file)
 
-    print(f"Reports saved to {output_file} with 3 sheets.")
+    print(f"Reports saved to {output_file} with 4 sheets.")
