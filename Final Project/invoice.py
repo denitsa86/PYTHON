@@ -1,7 +1,8 @@
 from datetime import datetime, date
 import pandas as pd
 import calendar
-from payment_behavior_alaysis import find_the_last_day_current_month
+from payment_behavior_analysis import find_the_last_day_current_month
+from invoice_functions import convert_to_usd
 
 
 class OpenInvoice:
@@ -21,9 +22,9 @@ class OpenInvoice:
 
         self.days_late = self.calculate_days_late()
         self.bucket = self.assign_to_overdue_bucket()
-        self.amount_in_usd = self.convert_to_usd()
+        self.amount_in_usd = convert_to_usd(self.amount, self.currency)
         self.last_day_of_the_current_month = find_the_last_day_current_month()
-        self.outstanding_amount_at_month_end = self.outstanding_on_month_end
+        #self.outstanding_amount_at_month_end = self.outstanding_on_month_end
 
     def calculate_days_late(self):
         today = datetime.today().date()
@@ -58,11 +59,11 @@ class OpenInvoice:
         else:
             return 0
 
-    # I have this also in data_load - to be fixed!!!
-    def convert_to_usd(self):
-        rates = {"USD": 1.00, "EUR": 1.16, "GBP": 1.32, "TRY": 0.024, "PLN": 0.27, "DKK": 0.16}
-        rate = rates.get(self.currency)  # , 1.0  -default to 1.0 if currency not found
-        return round(self.amount * rate, 2)
+    # # I have this also in data_load - to be fixed!!!
+    # def convert_to_usd(self):
+    #     rates = {"USD": 1.00, "EUR": 1.16, "GBP": 1.32, "TRY": 0.024, "PLN": 0.27, "DKK": 0.16}
+    #     rate = rates.get(self.currency)  # , 1.0  -default to 1.0 if currency not found
+    #     return round(self.amount * rate, 2)
 
 
 class ClosedInvoice:
@@ -83,16 +84,16 @@ class ClosedInvoice:
         self.days_late = self.calculate_days_late()
         self.last_day_of_the_current_month = find_the_last_day_current_month()
         self.bucket = self.assign_to_overdue_bucket()
-        self.amount_in_usd = self.convert_to_usd()
+        self.amount_in_usd = convert_to_usd(self.amount, self.currency)
 
     def calculate_days_late(self):
         return (pd.to_datetime(self.payment_date).date() - self.due_date).days
 
-    # To be fixed - repeated code!!!
-    def convert_to_usd(self):
-        rates = {"USD": 1.00, "EUR": 1.16, "GBP": 1.32, "TRY": 0.024, "PLN": 0.27, "DKK": 0.16}
-        rate = rates.get(self.currency)  # , 1.0  -default to 1.0 if currency not found
-        return round(self.amount * rate, 2)
+    # # To be fixed - repeated code!!!
+    # def convert_to_usd(self):
+    #     rates = {"USD": 1.00, "EUR": 1.16, "GBP": 1.32, "TRY": 0.024, "PLN": 0.27, "DKK": 0.16}
+    #     rate = rates.get(self.currency)  # , 1.0  -default to 1.0 if currency not found
+    #     return round(self.amount * rate, 2)
 
     def assign_to_overdue_bucket(self):
         if self.days_late <= 0:
@@ -114,4 +115,4 @@ class ClosedInvoice:
         else:
             return "180+"
 
-#Classes have the same methods - can I extract them in invoice_functions and just call them
+#Classes have the same methods - to be fixed

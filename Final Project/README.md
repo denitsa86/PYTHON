@@ -1,10 +1,11 @@
                      💰 CashMaster 💰
 
 This program aims to help the Accounts Receivable team to:
+
 ✔️ Have better visibility of the whole portfolio and due amounts
 within the current month
 ✔️ Identify risk in terms of cash collection
-✔️ Improve cash flow 
+✔️ Improve and secure cash flow 
 
 The problem is that the current software the team is using provides only 
 current snapshot of the overdue amounts as of the current day. This is
@@ -17,7 +18,7 @@ month, should be collected/ paid latest on the last day of the month
 paid latest on 30/11) invoices due on 30/11 are considered for the 
 next month-December).
 
-Input data:
+Input data(xlsx files):
 ➕ Collectors: id + full name + manager(list of collectors, each 
 responsible for list of customers /called portfolio or wallet/)
 ➕ Customers - number + name

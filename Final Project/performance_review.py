@@ -1,7 +1,7 @@
 from datetime import date
 from data_load import load_open_invoices, load_closed_invoices
 from invoice_functions import sum_current_due_invoices
-from payment_behavior_alaysis import find_the_last_day_current_month
+from payment_behavior_analysis import find_the_last_day_current_month
 
 closed_invoices = load_closed_invoices("data folder/closed invoices.XLSX")
 open_invoices = load_open_invoices("data folder/open invoices.XLSX")

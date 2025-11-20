@@ -1,4 +1,3 @@
-from data_load import load_closed_invoices, load_open_invoices
 from collections import defaultdict
 from datetime import timedelta, date, datetime
 import calendar

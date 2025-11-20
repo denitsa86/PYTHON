@@ -1,5 +1,5 @@
 from data_load import load_collectors, load_customers, load_open_invoices, load_closed_invoices
-from payment_behavior_alaysis import average_days_late_per_customer, calculate_expected_date_open_invoices, \
+from payment_behavior_analysis import average_days_late_per_customer, calculate_expected_date_open_invoices, \
     calculate_outstanding_at_month_end
 from report_generator import build_reports
 

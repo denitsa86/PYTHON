@@ -1,8 +1,7 @@
 import pandas as pd
 from openpyxl import load_workbook
-from payment_behavior_alaysis import find_the_last_day_current_month, calculate_outstanding_at_month_end
+from payment_behavior_analysis import find_the_last_day_current_month, calculate_outstanding_at_month_end
 from performance_review import calculate_overall_performance
-from invoice_functions import sum_current_due_invoices
 
 
 def build_reports(invoices, customers, customer_to_collector, expected_dates, open_invoices,
