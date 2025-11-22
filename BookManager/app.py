@@ -4,6 +4,8 @@ from library import Library
 from wishlist import Wishlist
 
 class LibraryApp:
+    THEMES = ["Кулинария", "Художествена литература", "Нехудожествена литература", "Приложна психология",
+              "Криминални романи", "Биографични", "Трилъри", "Специализирана литература", "Туризъм и пътуване"]
     def __init__(self):
         self.library = Library()
         self.wishlist = Wishlist()
@@ -42,21 +44,43 @@ class LibraryApp:
     def add_book_menu(self):
         name = input("Enter book name: ")
         author = input("Enter author: ")
-        theme = input("Enter theme: ")
+        #theme = input("Enter theme: ")
+        # Show predefined themes
+        print("\nChoose a theme:")
+        for i, theme in enumerate(self.THEMES, start=1):
+            print(f"{i}. {theme}")
+
+        try:
+            choice = int(input("Enter theme number: "))
+            if 1 <= choice <= len(self.THEMES):
+                theme = self.THEMES[choice - 1]
+            else:
+                print("❌ Invalid choice.")
+                return
+        except ValueError:
+            print("❌ Invalid input.")
+            return
+
         try:
             price = float(input("Enter price: "))
         except ValueError:
             print("❌ Invalid price.")
             return
         location = input("Enter location (1st, 2nd, 3rd floor): ")
-        resellable = input("Is it resellable? (y/n): ").strip().lower() in ("y", "yes")
+        resellable = input("Is it resellable? (y/n): ").strip().lower() in ("y", "yes", "да")
         book = Book(name, author, theme, price, location, resellable)
         self.library.add_book(book)
         print("✅ Book added to library!")
 
     def search_menu(self):
         print("Search by: 1. Name  2. Author  3. Theme")
-        choice = input("Choose: ")
+        #choice = input("Choose: ")
+        choice = None
+        while choice not in ("1", "2", "3"):
+            choice = input("Choose (1/2/3): ").strip()
+            if choice not in ("1", "2", "3"):
+                print("❌ Invalid choice. Please enter 1, 2, or 3.")
+
         query = input("Enter search text: ")
         field = "name" if choice == "1" else "author" if choice == "2" else "theme"
         results = self.library.search(query, field)

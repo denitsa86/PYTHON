@@ -29,6 +29,9 @@ currency, document date + net due date + profit center(indicating the
 line of business)
 ➕ Closed invoices: as open invoices + payment date
 
+***data generator folder is used to generate mock data for the purpose 
+of the project
+
 Fuctionality:
 ✅ Reads and loads input data from excel files -DONE
 ✅ Converts all amounts to USD - DONE/TO BE FIXED EVENTUALLY

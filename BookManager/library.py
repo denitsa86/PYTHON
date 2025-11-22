@@ -13,6 +13,8 @@ class Library:
         self.books.append(book)
         self.save()
 
+    # TO ADD- REMOVE BOOK !!!
+
     # search for a book
     def search(self, query, field="name"):
         query = query.lower()

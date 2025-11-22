@@ -7,7 +7,7 @@ import calendar
 def find_the_last_day_current_month():
     today = datetime.today()
     last_day = calendar.monthrange(today.year, today.month)[1]  # last day number
-    return date(today.year, today.month, last_day - 1)  # full date object
+    return date(today.year, today.month, last_day - 1)
 
 
 # analyze days late in closed invoices and find average
@@ -20,7 +20,6 @@ def average_days_late_per_customer(closed_invoices):
         customer_stats[customer]["total_days"] += inv.days_late
         customer_stats[customer]["count"] += 1
 
-    # compute averages
     adl_per_customer = {
         cust: stats["total_days"] / stats["count"]
         for cust, stats in customer_stats.items()
@@ -32,18 +31,9 @@ def average_days_late_per_customer(closed_invoices):
 def calculate_expected_date_open_invoices(open_invoices, adl_by_customer):
     expected_dates = []
     last_day = find_the_last_day_current_month()
-    # Debug check: inspect each invoice before filtering
-    # with open("invoice_debug.txt", "w") as f:
-    #     print(len(open_invoices))
-    #     for inv in open_invoices:
-    #         f.write(
-    #             f"Invoice {inv.invoice_id} | "
-    #             f"Due: {inv.due_date} ({type(inv.due_date).__name__}) | "
-    #             f"<= last_day? {inv.due_date <= last_day}\n"
-    #         )
 
     filtered_invoices = [inv for inv in open_invoices if
-                         inv.due_date <= last_day]  # taking into consideration only onv for current month
+                         inv.due_date <= last_day]  # taking into consideration only inv for current month
 
     for inv in filtered_invoices:
         customer = inv.customer_id
