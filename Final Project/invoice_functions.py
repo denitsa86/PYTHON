@@ -9,7 +9,7 @@ def sum_current_due_invoices(open_invoices):
 
 def convert_to_usd(amount,currency):
     rates = {"USD": 1.00, "EUR": 1.16, "GBP": 1.32, "TRY": 0.024, "PLN": 0.27, "DKK": 0.16}
-    rate = rates.get(currency.upper())  # if currency not found ??
+    rate = rates.get(currency.upper())  # if currency not found
     if rate is None:
         raise ValueError(f"Unsupported currency: {currency}")
     try:
@@ -17,7 +17,7 @@ def convert_to_usd(amount,currency):
     except (TypeError, ValueError):
         raise ValueError(f"Invalid amount: {amount}")
 
-def assign_to_overdue_bucket(days_late): # int - str:
+def assign_to_overdue_bucket(days_late):
     #Assigns an invoice to an overdue bucket based on days late.
     if days_late <= 0:
         return "Not Due Yet"

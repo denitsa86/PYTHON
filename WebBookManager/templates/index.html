@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>📚 The DeniVerse Library</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<h1>📚 The DeniVerse Library</h1>
+<a href="{{ url_for('add_book') }}">➕ Add Book</a> |
+<a href="{{ url_for('search') }}">🔍 Search</a> |
+<a href="{{ url_for('wishlist_page') }}">⭐ Wishlist</a>
+ <button id="aboutBtn">👋 About Me</button>
+
+<h3>Totals</h3>
+<p>
+    💰 Total price: {{ "%.2f"|format(total_price) }} лв
+    (≈ €{{ "%.2f"|format(total_price * 0.51) }})
+</p>
+<p>
+    📈 Potential profit: {{ "%.2f"|format(potential_profit) }} лв
+    (≈ €{{ "%.2f"|format(potential_profit * 0.51) }})
+</p>
+
+<div class="bookshelf">
+    {% for book in books %}
+    <div class="book"
+         data-name="{{ book.name }}"
+         data-author="{{ book.author }}"
+         data-theme="{{ book.theme }}"
+         data-price="{{ '%.2f'|format(book.price) }}"
+    data-location="{{ book.location }}"
+    data-resellable="{{ book.resellable }}">
+    <div class="spine">{{ book.name }}</div>
+    <div class="book-author">{{ book.author }}</div>
+    <a href="{{ url_for('remove_book', name=book.name) }}">❌ Remove</a>
+</div>
+{% endfor %}
+</div>
+
+<!-- 3D Book Modal -->
+<div id="bookModal" class="modal">
+    <div class="book-popup">
+        <div class="book-cover"></div>
+        <div class="book-page">
+            <span class="close">&times;</span>
+            <h2 id="bookTitle"></h2>
+            <p><strong>Author:</strong> <span id="bookAuthor"></span></p>
+            <p><strong>Theme:</strong> <span id="bookTheme"></span></p>
+            <p><strong>Price:</strong> <span id="bookPrice"></span> лв
+                (≈ €<span id="bookPriceEuro"></span>)</p>
+            <p><strong>Location:</strong> <span id="bookLocation"></span></p>
+            <p><strong>Resellable:</strong> <span id="bookResellable"></span></p>
+        </div>
+    </div>
+</div>
+
+<!-- About Me Modal -->
+    <div id="aboutModal" class="modal">
+        <div class="about-content">
+            <span class="close-about">&times;</span>
+            <div class="about-text">
+                <p>👋 Hi, I’m a beginner programmer and an over‑caffeinated bookworm.📖</p>
+                <p>That means my life is basically split between two worlds:</p>
+                <p>1️⃣ In one, I’m lost in gripping thrillers filled with mysterious murders,<br>
+                mouth‑watering culinary tales that make me hungry while I code, and<br>
+                love stories so dramatic they could crash my program faster than a missing comma.</p>
+                <p>2️⃣ In the other, I’m staring at my screen wondering why my code keeps<br>
+                throwing errors that sound suspiciously like a bad book review.🤔</p>
+                <p>This project is my attempt to merge those worlds — a digital library<br>
+                built by someone who still thinks “syntax error” is just the computer being dramatic.<br>
+                And also an attempt to stop circling around between the 3 floors of my house<br>
+                looking for something like a broken conditional statement.</p>
+                <p>This project doesn’t just organize books — oh no, it also tries to<br>
+                calculate the potential profit from selling them. Because apparently,<br>
+                my inner bookworm decided to moonlight as a business analyst.</p>
+                <p>Here’s how it works:</p>
+                <p>📘Input: A list of books and their prices (manual).<br>
+                🪄Process: A bunch of math that looks suspiciously like a magic spell.<br>
+                💸Output: A number that tells you how much money you could make… assuming<br>
+                people actually buy your books and not just borrow them forever.</p>
+                <p>In short, this project is where my bookworm heart meets my beginner‑programmer brain.<br>
+                It may crash, it may loop endlessly, but like any good story,<br>
+                it’s worth turning the page to see what happens next.</p>
+            </div>
+        </div>
+    </div>
+<script>
+    document.querySelectorAll('.book').forEach(book => {
+    book.querySelector('.spine').addEventListener('click', () => {
+    const priceBGN = parseFloat(book.dataset.price);
+    const priceEUR = (priceBGN * 0.51).toFixed(2);
+
+    document.getElementById('bookTitle').textContent = book.dataset.name;
+    document.getElementById('bookAuthor').textContent = book.dataset.author;
+    document.getElementById('bookTheme').textContent = book.dataset.theme;
+    document.getElementById('bookPrice').textContent = priceBGN.toFixed(2);
+    document.getElementById('bookPriceEuro').textContent = priceEUR;
+    document.getElementById('bookLocation').textContent = book.dataset.location;
+    document.getElementById('bookResellable').textContent = book.dataset.resellable;
+
+    document.getElementById('bookModal').classList.add('show');
+  });
+});
+
+    document.querySelector('.close').addEventListener('click', () => {
+        document.getElementById('bookModal').classList.remove('show');
+    });
+
+    window.addEventListener('click', (event) => {
+        if (event.target === document.getElementById('bookModal')) {
+            document.getElementById('bookModal').classList.remove('show');
+        }
+    });
+
+    // About Me modal logic
+        document.getElementById('aboutBtn').addEventListener('click', () => {
+            document.getElementById('aboutModal').classList.add('show');
+        });
+
+        document.querySelector('.close-about').addEventListener('click', () => {
+            document.getElementById('aboutModal').classList.remove('show');
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target === document.getElementById('aboutModal')) {
+                document.getElementById('aboutModal').classList.remove('show');
+            }
+        });
+</script>
+</body>
+</html>

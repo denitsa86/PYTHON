@@ -1,0 +1,17 @@
+<h2>Wishlist</h2>
+<form method="POST">
+    Name: <input type="text" name="name"><br>
+    Author: <input type="text" name="author"><br>
+    Theme: <input type="text" name="theme"><br>
+    Price: <input type="number" step="0.01" name="price"><br>
+    <button type="submit">Add to Wishlist</button>
+</form>
+
+<h3>Books in Wishlist</h3>
+<ul>
+    {% for book in books %}
+        <li>{{ book }}
+            <a href="{{ url_for('buy_from_wishlist', name=book.name) }}">Buy</a>
+        </li>
+    {% endfor %}
+</ul>

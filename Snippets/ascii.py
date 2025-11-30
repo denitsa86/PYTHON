@@ -11,3 +11,5 @@ def return_ascii_in_between(char1, char2):
 # The chr() function returns the character that represents the specified unicode.
 x = chr(97)
 print(x)  # a
+ascii_one = ord(x)
+print(ascii_one)

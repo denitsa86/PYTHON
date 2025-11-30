@@ -1,15 +1,14 @@
 import pandas as pd
 from openpyxl import load_workbook
-from payment_behavior_analysis import (find_the_last_day_current_month, calculate_outstanding_at_month_end,
-                                       average_days_late_per_customer, calculate_expected_date_open_invoices)
+from payment_behavior_analysis import (find_the_last_day_current_month, calculate_outstanding_at_month_end)
 from performance_review import calculate_overall_performance, calculate_performance_per_collector
 
 
-def build_reports(invoices, customers, customer_to_collector, expected_dates, open_invoices,
+def build_reports(customers, customer_to_collector, expected_dates, open_invoices,
                   closed_invoices, output_file="overdue_report.xlsx"):
     # Common filter
     last_day = find_the_last_day_current_month()
-    filtered_invoices = [inv for inv in invoices if inv.due_date <= last_day]
+    filtered_invoices = [inv for inv in open_invoices if inv.due_date <= last_day]
 
     # --- First report: by overdue bucket ---
     df_bucket = pd.DataFrame([{
@@ -51,7 +50,6 @@ def build_reports(invoices, customers, customer_to_collector, expected_dates, op
     report_status = report_status.reset_index()
 
     # --- Third report: expected overdue on D ---
-
     outstanding_by_customer = calculate_outstanding_at_month_end(expected_dates, customers)
 
     df_outstanding = pd.DataFrame([{
@@ -67,35 +65,19 @@ def build_reports(invoices, customers, customer_to_collector, expected_dates, op
         if amount > 0  # only include customers with outstanding balance
     ])
 
-    report_expected = df_outstanding.groupby(
-        ["customer_name", "customer_id", "collector_name", "collector_manager"], as_index=False
-    )["ExpectedOverdueUSD"].sum()
+    report_expected = df_outstanding.pivot_table(
+        index=["customer_name", "customer_id", "collector_name", "collector_manager"],
+        values="ExpectedOverdueUSD",
+        aggfunc="sum",
+        fill_value=0
+    ).reset_index()
 
     # --- 4th report overall performance ---
 
     performance_result, clarification = calculate_overall_performance(open_invoices, closed_invoices)
     df_performance = pd.DataFrame([performance_result])
 
-    # --- Fifth report: invoice details with ADL ---
-    # Step 1: compute ADL per customer from closed invoices
-    adl_by_customer = average_days_late_per_customer(closed_invoices)
-    expected_dates = calculate_expected_date_open_invoices(open_invoices, adl_by_customer)
-    expected_lookup = {e["invoice_id"]: e["expected_payment_date"] for e in expected_dates}
-
-    # Step 2: build invoice-level report
-    df_invoices = pd.DataFrame([{
-        "customer_name": inv.customer_name,
-        "customer_id": inv.customer_id,
-        "invoice_date": inv.invoice_date,
-        "due_date": inv.due_date,
-        "expected_payment_date": expected_lookup.get(inv.invoice_id),
-        "amount_usd": inv.amount_in_usd,
-        "average_days_late": adl_by_customer.get(inv.customer_id, 0),
-        "collector_name": customer_to_collector.get(inv.customer_id, ("Unknown", ""))[0],
-        "collector_manager": customer_to_collector.get(inv.customer_id, ("Unknown", ""))[1],
-    } for inv in invoices])
-
-    # --- Sixth report: performance per collector ---
+    # --- Fifth report: performance per collector ---
     performance_per_collector = calculate_performance_per_collector(
         open_invoices, closed_invoices, customer_to_collector
     )
@@ -106,12 +88,11 @@ def build_reports(invoices, customers, customer_to_collector, expected_dates, op
         for collector_id, stats in performance_per_collector.items()
     ])
 
-    cols = ["Collector Name"] + [c for c in df_perf_collector.columns if c != "Collector Name"]
-    df_perf_collector = df_perf_collector.reset_index(drop=True)
+    df_perf_collector = df_perf_collector.reset_index()
 
     # Reorder columns so Collector Name comes first
-    cols = ["Collector Name"] + [c for c in df_perf_collector.columns if c != "Collector Name"]
-    df_perf_collector = df_perf_collector[cols]
+    df_perf_collector = df_perf_collector[
+        ["Collector Name"] + [c for c in df_perf_collector.columns if c != "Collector Name"]]
 
     # --- Write all in the same Excel file ---
     with pd.ExcelWriter(output_file, engine="openpyxl") as writer:
@@ -119,7 +100,6 @@ def build_reports(invoices, customers, customer_to_collector, expected_dates, op
         report_status.to_excel(writer, sheet_name="MonthEndPrepStatus", index=False)
         report_expected.to_excel(writer, sheet_name="ExpectedOverdueOnMonthEnd", index=False)
         df_performance.to_excel(writer, sheet_name="PerformanceSummary", index=False)
-        df_invoices.to_excel(writer, sheet_name="InvoiceDetails", index=False)
         df_perf_collector.to_excel(writer, sheet_name="PerformancePerCollector", index=False)
 
     # --- Append custom text to the third sheet ---
@@ -131,9 +111,18 @@ def build_reports(invoices, customers, customer_to_collector, expected_dates, op
     # --- Append clarifications to the fourth sheet ---
     ws_perf = wb["PerformanceSummary"]
     last_row_perf = ws_perf.max_row + 2
-    ws_perf.cell(row=last_row_perf, column=1).value = "Clarifications:"
-    for i, line in enumerate(clarification, start=1):
-        ws_perf.cell(row=last_row_perf + i, column=1).value = line
+
+    row_number = last_row_perf  # start after the table
+
+    # Write the header
+    ws_perf.cell(row=row_number, column=1).value = "Clarifications:"
+
+    # write each line one by one
+    for line in clarification:
+        row_number += 1  # move down one row
+        ws_perf.cell(row=row_number, column=1).value = line
+
+    # Save the file
     wb.save(output_file)
 
     print(f"Reports saved to {output_file} with 5 sheets.")

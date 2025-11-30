@@ -11,7 +11,7 @@ def find_the_last_day_current_month():
 
 
 # analyze days late in closed invoices and find average
-def average_days_late_per_customer(closed_invoices):
+def average_days_late_per_customer(closed_invoices, default_value=0.0):
     # dictionary to hold totals and counts
     customer_stats = defaultdict(lambda: {"total_days": 0, "count": 0})
 
@@ -20,10 +20,14 @@ def average_days_late_per_customer(closed_invoices):
         customer_stats[customer]["total_days"] += inv.days_late
         customer_stats[customer]["count"] += 1
 
-    adl_per_customer = {
-        cust: stats["total_days"] / stats["count"]
-        for cust, stats in customer_stats.items()
-    }
+    adl_per_customer = {}
+    for cust, stats in customer_stats.items():
+        if stats["count"] > 0:
+            adl_per_customer[cust] = stats["total_days"] / stats["count"]
+        else:
+            # Avoid division by zero: assign default value
+            adl_per_customer[cust] = default_value
+
     return adl_per_customer
 
 
@@ -59,7 +63,9 @@ def calculate_outstanding_at_month_end(expected_dates, customers):
     last_day = find_the_last_day_current_month()
 
     # Initialize all customers with 0 outstanding
-    outstanding_by_customer = {cust.payer_number: 0.0 for cust in customers}
+    outstanding_by_customer = defaultdict(float)
+    for cust in customers:
+        outstanding_by_customer[cust.payer_number] = 0.0
 
     for entry in expected_dates:
         expected_payment_date = entry["expected_payment_date"]
@@ -67,8 +73,6 @@ def calculate_outstanding_at_month_end(expected_dates, customers):
         # If expected payment date is after D, invoice is still outstanding
         if expected_payment_date > last_day:
             payer_number = entry["customer_id"]
-            if payer_number not in outstanding_by_customer:
-                outstanding_by_customer[payer_number] = 0.0
             outstanding_by_customer[payer_number] += entry["amount_usd"]
 
-    return outstanding_by_customer
+    return dict(outstanding_by_customer)

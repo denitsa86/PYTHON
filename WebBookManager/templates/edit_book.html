@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Book Details</title>
+</head>
+<body>
+    <h2>Complete Book Details</h2>
+    <form method="POST">
+        <p><strong>Name:</strong> {{ book.name }}</p>
+        <p><strong>Author:</strong> {{ book.author }}</p>
+        <p><strong>Theme:</strong> {{ book.theme }}</p>
+        <p><strong>Price:</strong> ${{ "%.2f"|format(book.price) }}</p>
+
+        <label>Location:</label>
+        <input type="text" name="location" required><br><br>
+
+        <label>Resellable:</label>
+        <input type="checkbox" name="resellable"><br><br>
+
+        <button type="submit">Add to Library</button>
+    </form>
+</body>
+</html>

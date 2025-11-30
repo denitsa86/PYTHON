@@ -50,6 +50,5 @@ reached (overdue < 5%) - DONE
 DONE YET
 
 NOTES:
-❓Real-time currency convertion
 ❓Adjust the width and names of the columns in the reports
 ❓Think about edge cases

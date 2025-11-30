@@ -18,7 +18,7 @@ class OpenInvoice:
         self.co_code = co_code
         self.profit_center = profit_center
         self.invoice_date = invoice_date
-        #Derived attributes:
+        # Derived attributes:
         self.days_late = self.calculate_days_late()
         self.bucket = assign_to_overdue_bucket(self.days_late)
         self.amount_in_usd = convert_to_usd(self.amount, self.currency)
@@ -28,14 +28,12 @@ class OpenInvoice:
         today = datetime.today().date()
         return (today - self.due_date).days
 
-
-def outstanding_on_month_end(self, expected_payment_date):
-    # Returns outstanding amount on D (day before last day of month).
-
-    if self.last_day_of_the_current_month < expected_payment_date:
-        return self.amount
-    else:
-        return 0
+    # def outstanding_on_month_end(self, expected_payment_date):
+    #     # Returns outstanding amount on day before last day of month.
+    #     if self.last_day_of_the_current_month < expected_payment_date:
+    #         return self.amount
+    #     else:
+    #         return 0
 
 
 class ClosedInvoice:
