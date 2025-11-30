@@ -117,7 +117,7 @@ nouns = ["Spicy", "Savory", "Sweet", "Tangy", "Zesty", "Juicy", "Crispy", "Crunc
          "Lavish-full", "Sumptuous-rich", "Grand-classic", "Magnificent-rich"
          ]
 
-# Generate 450 unique names
+# Generate unique names
 company_names = []
 while len(company_names) < 5000:
     name = f"{random.choice(adjectives)} {random.choice(nouns)} "
