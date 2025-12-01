@@ -128,4 +128,4 @@ while len(company_names) < 5000:
 df = pd.DataFrame({"Company Name": company_names})
 df.to_excel("company_namesAll.xlsx", index=False)
 
-print("Generated company_names.xlsx with 450 LTD company names.")
+print("Generated company_names.xlsx company names.")
