@@ -40,16 +40,16 @@ def load_collectors(filename="collectors.xlsx"):
 
     return customer_to_collector
 
-
-# Load account managers
-def load_account_managers(filename="account_managers.xlsx"):
-    try:
-        df = pd.read_excel(filename)
-    except FileNotFoundError:
-        print(f"File {filename} not found")
-        return []
-    return [AccountManager(row["Account Manager"], row["Business segment"], row["Managed Payer"]) for _, row in
-            df.iterrows()]
+#
+# # Load account managers
+# def load_account_managers(filename="account_managers.xlsx"):
+#     try:
+#         df = pd.read_excel(filename)
+#     except FileNotFoundError:
+#         print(f"File {filename} not found")
+#         return []
+#     return [AccountManager(row["Account Manager"], row["Business segment"], row["Managed Payer"]) for _, row in
+#             df.iterrows()]
 
 
 # load open invoices

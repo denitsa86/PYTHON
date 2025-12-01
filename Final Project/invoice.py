@@ -22,18 +22,11 @@ class OpenInvoice:
         self.days_late = self.calculate_days_late()
         self.bucket = assign_to_overdue_bucket(self.days_late)
         self.amount_in_usd = convert_to_usd(self.amount, self.currency)
-        self.last_day_of_the_current_month = find_the_last_day_current_month()
+        # self.last_day_of_the_current_month = find_the_last_day_current_month()
 
     def calculate_days_late(self):
         today = datetime.today().date()
         return (today - self.due_date).days
-
-    # def outstanding_on_month_end(self, expected_payment_date):
-    #     # Returns outstanding amount on day before last day of month.
-    #     if self.last_day_of_the_current_month < expected_payment_date:
-    #         return self.amount
-    #     else:
-    #         return 0
 
 
 class ClosedInvoice:

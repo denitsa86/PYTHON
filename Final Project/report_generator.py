@@ -77,22 +77,6 @@ def build_reports(customers, customer_to_collector, expected_dates, open_invoice
     performance_result, clarification = calculate_overall_performance(open_invoices, closed_invoices)
     df_performance = pd.DataFrame([performance_result])
 
-    # --- Fifth report: performance per collector ---
-    performance_per_collector = calculate_performance_per_collector(
-        open_invoices, closed_invoices, customer_to_collector
-    )
-
-    # Convert dict-of-dicts into DataFrame with collector name as a column
-    df_perf_collector = pd.DataFrame([
-        {"Collector Name": collector_id, **stats}
-        for collector_id, stats in performance_per_collector.items()
-    ])
-
-    df_perf_collector = df_perf_collector.reset_index()
-
-    # Reorder columns so Collector Name comes first
-    df_perf_collector = df_perf_collector[
-        ["Collector Name"] + [c for c in df_perf_collector.columns if c != "Collector Name"]]
 
     # --- Write all in the same Excel file ---
     with pd.ExcelWriter(output_file, engine="openpyxl") as writer:
@@ -100,7 +84,6 @@ def build_reports(customers, customer_to_collector, expected_dates, open_invoice
         report_status.to_excel(writer, sheet_name="MonthEndPrepStatus", index=False)
         report_expected.to_excel(writer, sheet_name="ExpectedOverdueOnMonthEnd", index=False)
         df_performance.to_excel(writer, sheet_name="PerformanceSummary", index=False)
-        df_perf_collector.to_excel(writer, sheet_name="PerformancePerCollector", index=False)
 
     # --- Append custom text to the third sheet ---
     wb = load_workbook(output_file)
@@ -125,4 +108,4 @@ def build_reports(customers, customer_to_collector, expected_dates, open_invoice
     # Save the file
     wb.save(output_file)
 
-    print(f"Reports saved to {output_file} with 5 sheets.")
+    print(f"Reports saved to {output_file} with 4 sheets.")
