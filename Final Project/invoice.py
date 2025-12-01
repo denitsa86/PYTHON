@@ -18,11 +18,10 @@ class OpenInvoice:
         self.co_code = co_code
         self.profit_center = profit_center
         self.invoice_date = invoice_date
-        # Derived attributes:
+
         self.days_late = self.calculate_days_late()
         self.bucket = assign_to_overdue_bucket(self.days_late)
         self.amount_in_usd = convert_to_usd(self.amount, self.currency)
-        # self.last_day_of_the_current_month = find_the_last_day_current_month()
 
     def calculate_days_late(self):
         today = datetime.today().date()
@@ -44,8 +43,8 @@ class ClosedInvoice:
         self.profit_center = profit_center
         self.invoice_date = invoice_date
         self.payment_date = payment_date
-        # Derived attributes:
         self.days_late = self.calculate_days_late()
+
         self.last_day_of_the_current_month = find_the_last_day_current_month()
         self.bucket = assign_to_overdue_bucket(self.days_late)
         self.amount_in_usd = convert_to_usd(self.amount, self.currency)

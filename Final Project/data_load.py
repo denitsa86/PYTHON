@@ -1,7 +1,6 @@
 import pandas as pd
 from customer import Customer
 from collector import Collector
-from account_manager import AccountManager
 from invoice import OpenInvoice, ClosedInvoice
 
 
@@ -32,24 +31,13 @@ def load_collectors(filename="collectors.xlsx"):
             collectors[coll_name] = Collector(coll_name, manager)
         collectors[coll_name].assign_customer(cust_id)
 
-    # Build lookup: customer_id → (collector_name, manager)
+    # Build lookup/mapping: customer_id → (collector_name, manager)
     customer_to_collector = {}
     for collector in collectors.values():
         for cust in collector.customers:
             customer_to_collector[cust] = (collector.collector_name, collector.collector_manager)
 
     return customer_to_collector
-
-#
-# # Load account managers
-# def load_account_managers(filename="account_managers.xlsx"):
-#     try:
-#         df = pd.read_excel(filename)
-#     except FileNotFoundError:
-#         print(f"File {filename} not found")
-#         return []
-#     return [AccountManager(row["Account Manager"], row["Business segment"], row["Managed Payer"]) for _, row in
-#             df.iterrows()]
 
 
 # load open invoices

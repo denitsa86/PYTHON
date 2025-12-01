@@ -226,4 +226,8 @@ var()	Returns the variance of the values in the specified axis
 where()	Replace all values where the specified condition is False
 xs()	Returns the cross-section of the DataFrame
 __iter__()	Returns an iterator of the info axes
+-----------
+pandas.to_datetime - Convert argument to datetime.
+
+This function converts a scalar, array-like, Series or DataFrame/dict-like to a pandas datetime object.
 '''

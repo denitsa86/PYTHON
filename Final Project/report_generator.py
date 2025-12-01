@@ -1,7 +1,7 @@
 import pandas as pd
 from openpyxl import load_workbook
 from payment_behavior_analysis import (find_the_last_day_current_month, calculate_outstanding_at_month_end)
-from performance_review import calculate_overall_performance, calculate_performance_per_collector
+from performance_review import calculate_overall_performance
 
 
 def build_reports(customers, customer_to_collector, expected_dates, open_invoices,
