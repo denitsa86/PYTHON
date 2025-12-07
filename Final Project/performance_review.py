@@ -1,11 +1,7 @@
 from datetime import date
 import pandas as pd
-from data_load import load_open_invoices, load_closed_invoices
 from invoice_functions import sum_current_due_invoices
 from payment_behavior_analysis import find_the_last_day_current_month
-
-#closed_invoices = load_closed_invoices("data folder/closed invoices.XLSX")
-#open_invoices = load_open_invoices("data folder/open invoices.XLSX")
 
 # Calculate Total to be Collected for the current month
 # total_to_be_collected would be sum of all open and closed invoices due from 1st day of the current
