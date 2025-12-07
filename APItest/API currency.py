@@ -20,7 +20,6 @@ response = requests.get(BASE_URL, params=params)
 #Converts the response body (JSON text) into a Python dictionary.
 data = response.json()
 
-
 # response.status_code == 200: Confirms the HTTP request succeeded.
 # data.get("success"): Confirms the API itself says the request was valid.
 # Both must be true before continuing.

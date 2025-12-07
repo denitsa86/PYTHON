@@ -1,7 +1,12 @@
-#A Pandas DataFrame is a 2 dimensional data structure, like a 2 dimensional array, or a
+# Pandas provides 2 main data structures:
+# Series - one-dimensional labeled array
+#DataFrame - 2-dimensional labeled str. table
+#    1. DataFrames
+#A Pandas DataFrame is a 2-dimensional data structure, like a 2-dimensional array, or a
 # table with rows and columns.
 import pandas as pd
-
+#1.1 Creating data
+#a. DataFrame
 data = {
   "calories": [420, 380, 390],
   "duration": [50, 40, 45]
@@ -10,17 +15,23 @@ data = {
 #load data into a DataFrame object:
 df = pd.DataFrame(data)
 
+data_two = {
+  "calories": [200, 201, 300],
+  "duration": [5, 4, 10]
+}
+df2 = pd.DataFrame(data)
 print(df)
 # DataFrame is like a table with rows and columns.
+#b. Series
+pd.Series(data)
+
 # Pandas use the loc attribute to return one or more specified row(s)
 # Example
 # Return row 0:
-
 #refer to the row index:
 print(df.loc[0])  #This example returns a Pandas Series.
 
 # Return row 0 and 1:
-
 #use a list of indexes:
 print(df.loc[[0, 1]])  # When using [], the result is a Pandas DataFrame.
 
@@ -29,9 +40,7 @@ data = {
   "calories": [420, 380, 390],
   "duration": [50, 40, 45]
 }
-
 df = pd.DataFrame(data, index = ["day1", "day2", "day3"])
-
 print(df)
 
 # Use the named index in the loc attribute to return the specified row(s).
@@ -40,10 +49,10 @@ print(df)
 print(df.loc["day2"])
 
 # If your data sets are stored in a file, Pandas can load them into a DataFrame.
-df = pd.read_csv('data.csv')
+df = pd.read_csv('data.csv') # pd.read_excel() / pd.read_csv()
 print(df)
 
-# What is a Series?
+#              2.Series
 # A Pandas Series is like a column in a table.
 # It is a one-dimensional array holding data of any type.
 a = [1, 7, 2]
@@ -60,16 +69,64 @@ myvar = pd.Series(a, index = ["x", "y", "z"])
 print(myvar)
 
 
-#                   Viewing the Data
+#3. concatenate - indexes are not unique after concat!
+#axis = 1 adds the concatenation on a columnwise level
+df_new = pd.concat([df, df2], axis=1)
+# we have to reset them. Inplace allows pandas to make the modifications directly
+#to the DF; drop=True allows to reset the row references/index/
+df_new.reset_index(drop=True, inplace=True)
+
+#4. Viewing the Data
 # One of the most used method for getting a quick overview of the DataFrame, is the head() method.
 # The head() method returns the headers and a specified number of rows, starting from the top.
 # printing the first 10 rows of the DataFrame:
 
 df = pd.read_csv('data.csv')
 print(df.head(10))  #if the number of rows is not specified, the head() method will return the top 5 rows.
-
+df = pd.read_csv('data.csv', header=None) #indexes will be headers
 #There is also a tail() method for viewing the last rows of the DataFrame.
 
+""" 5.Exploring and evaluating data
+len(df) - find the length of the dataframe
+df.head(10) - if no number it returns the first 5 rows
+df.tail(10) - if no number it returns the last 5 rows
+df.info() - DF Summary
+df.describe() - statistics, only for numeric columns
+df.shape() - returns rows,columns
+df.columns() - lists column names
+
+6.Filter - with iloc property
+df.iloc[row_indexer, col_indexer] row/col range i:n
+ Filter - with boolean indexer
+df[df[9] == "MIT"] - it returns all rows where column 9 is MIT
+
+7. Replace values
+df.iloc[df[9] == "MIT", 0] = "Hello" --> 0 stands for column 0
+Means if df[9] is MIT replace col.0 with Hello
+
+8. Data Cleaning
+df.dropna() - removes missing values
+df.fillna()fills missing values
+df.drop(columns = ["col"]) - drops column
+df.rename(columns = {"old":"new"}) - rename column
+
+9. Aggregation & grouping
+df.groupby('column').mean() - compute mean
+df.agg({'col':'mean', 'col2':'sum'}) - multiple aggregations
+
+10. Sorting
+df.sort_values(by=['col2'], ascending=False) - sort by column
+df.sort_index(ascending=False) - sort by index
+
+11. Exporting data
+df.to_csv('data.csv')
+df.to_excel('data.xlsx')
+
+---->DIFFERENCE between merge, join, concat
+merge - common column and indices
+join - combining on a key column or index
+concat - combining DF across rows and columns
+"""
 '''Property/Method	Description
 abs()	Return a DataFrame with the absolute value of each value
 add()	Adds the values of a DataFrame with the specified value(s)

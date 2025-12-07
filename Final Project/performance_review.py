@@ -1,17 +1,15 @@
 from datetime import date
 import pandas as pd
-from collections import defaultdict
 from data_load import load_open_invoices, load_closed_invoices
 from invoice_functions import sum_current_due_invoices
 from payment_behavior_analysis import find_the_last_day_current_month
 
-closed_invoices = load_closed_invoices("data folder/closed invoices.XLSX")
-open_invoices = load_open_invoices("data folder/open invoices.XLSX")
-
+#closed_invoices = load_closed_invoices("data folder/closed invoices.XLSX")
+#open_invoices = load_open_invoices("data folder/open invoices.XLSX")
 
 # Calculate Total to be Collected for the current month
 # total_to_be_collected would be sum of all open and closed invoices due from 1st day of the current
-# month until last day - 1
+# month until last day - 1 + others closed in the current month
 def calculate_overall_performance(open_invoices, closed_invoices):
     today = date.today()
     last_day = find_the_last_day_current_month()
@@ -58,5 +56,3 @@ def calculate_overall_performance(open_invoices, closed_invoices):
             f"Amount to collect to reach target (<5%): ${amount_to_collect_to_target:,.2f}"
         )
     return result, clarification
-
-
