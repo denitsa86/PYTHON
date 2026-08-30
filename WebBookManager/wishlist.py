@@ -1,45 +1,64 @@
-import csv
+import os
+import psycopg2
 from book import Book
 
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+
 class Wishlist:
-    def __init__(self, filename="wishlist.csv"):
-        self.filename = filename
+    def __init__(self):
+        self._init_db()
         self.books = []
         self.load()
 
-#add to wishlist
+    def _connect(self):
+        return psycopg2.connect(DATABASE_URL)
+
+    def _init_db(self):
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS wishlist (
+                        id SERIAL PRIMARY KEY,
+                        name TEXT,
+                        author TEXT,
+                        theme TEXT,
+                        price REAL
+                    )
+                """)
+
+    # add to wishlist
     def add(self, book):
         self.books.append(book)
-        self.save()
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "INSERT INTO wishlist (name, author, theme, price) VALUES (%s, %s, %s, %s)",
+                    (book.name, book.author, book.theme, book.price)
+                )
 
-#remove
+    # remove
     def remove(self, name):
         for b in self.books:
             if b.name.lower() == name.lower():
                 self.books.remove(b)
-                self.save()
+                with self._connect() as conn:
+                    with conn.cursor() as cur:
+                        cur.execute("DELETE FROM wishlist WHERE name = %s", (b.name,))
                 return b
         return None
 
-#save to file
     def save(self):
-        with open(self.filename, "w", newline="", encoding="utf-8") as f:
-            writer = csv.writer(f)
-            # Wishlist only stores these fields
-            writer.writerow(["name", "author", "theme", "price"])
-            for b in self.books:
-                writer.writerow([b.name, b.author, b.theme, b.price])
+        # kept for compatibility with existing webapp.py calls, if any
+        pass
 
-    # load book data from file
+    # load book data from db
     def load(self):
-        try:
-            with open(self.filename, "r", newline="", encoding="utf-8") as f:
-                reader = csv.reader(f)
-                next(reader)  # skip header
-                self.books = [
-                    Book(name=row[0], author=row[1], theme=row[2], price=float(row[3]),
-                         location="", resellable=False)  # defaults for unused fields
-                    for row in reader
-                ]
-        except FileNotFoundError:
-            self.books = []
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT name, author, theme, price FROM wishlist")
+                rows = cur.fetchall()
+        self.books = [
+            Book(name=r[0], author=r[1], theme=r[2], price=r[3], location="", resellable=False)
+            for r in rows
+        ]

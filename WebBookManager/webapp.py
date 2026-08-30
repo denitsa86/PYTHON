@@ -85,16 +85,7 @@ def buy_from_wishlist(name):
 
 @app.route("/remove/<name>")
 def remove_book(name):
-    # Find book by name
-    book_to_remove = None
-    for b in library.books:
-        if b.name.lower() == name.lower():
-            book_to_remove = b
-            break
-
-    if book_to_remove:
-        library.books.remove(book_to_remove)
-        library.save()
+    library.remove_book(name)
     return redirect(url_for("index"))
 
 
