@@ -1,0 +1,148 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #fdf6e3;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+h1 {
+  margin: 20px;
+}
+
+.bookshelf {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 20px;
+  padding: 40px;
+  background: linear-gradient(#d2a679 10px, transparent 10px) repeat-y;
+  background-size: 100% 120px; /* horizontal shelf lines */
+}
+
+.book {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.spine {
+  width: 40px;
+  height: 180px;
+  background: linear-gradient(to bottom, #8b0000, #c94f4f);
+  color: #fff;
+  writing-mode: vertical-rl;
+  text-align: center;
+  padding: 10px 5px;
+  border-left: 4px solid #5c0000;
+  border-right: 4px solid #5c0000;
+  border-radius: 2px;
+  box-shadow: 3px 3px 8px rgba(0,0,0,0.4);
+  font-weight: bold;
+  font-family: 'Georgia', serif;
+  overflow: hidden;
+  text-overflow: clip;
+  white-space: normal;
+  word-break: break-word;
+  cursor: pointer;
+}
+
+.book-author {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+/* Modal overlay */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal.show {
+  display: flex;
+}
+
+/* Book popup container */
+.book-popup {
+  position: relative;
+  width: 320px;
+  height: 420px;
+  perspective: 1200px;
+}
+
+/* Cover and page sides */
+.book-cover, .book-page {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border: 2px solid #8b0000;
+  border-radius: 5px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  transition: transform 1s ease;
+}
+
+.book-cover {
+  background: linear-gradient(to right, #8b0000, #c94f4f);
+  transform-origin: left;
+  z-index: 2;
+}
+
+.book-page {
+  background: #fff;
+  padding: 20px;
+  transform: rotateY(180deg);
+  overflow-y: auto;
+}
+
+/* Animation states */
+.modal.show .book-cover {
+  transform: rotateY(-180deg);
+}
+
+.modal.show .book-page {
+  transform: rotateY(0deg);
+}
+
+/* Close button */
+.close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 20px;
+  cursor: pointer;
+}
+/* -------------------- About Me Modal -------------------- */
+.about-content {
+  background-color: #fff;
+  margin: auto;
+  padding: 30px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 600px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  font-size: 16px;
+  line-height: 1.6;
+  text-align: left;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+
+.about-text p {
+  margin-bottom: 15px;
+}
+
+.close-about {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  font-size: 24px;
+  cursor: pointer;
+}
